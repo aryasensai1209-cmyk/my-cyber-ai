@@ -40,3 +40,28 @@ if st.button("INITIATE SYSTEM SCAN"):
 # --- Sidebar Stats ---
 st.sidebar.header("System Status")
 st.sidebar.info("● CORE: ONLINE\n\n● DB: 1M SIGNATURES\n\n● MODE: PRODUCTION")
+
+# --- DATABASE INTEGRATION (Supabase) ---
+from supabase import create_client, Client
+
+def init_db():
+    # Retrieve secrets from Streamlit Cloud dashboard
+    try:
+        url = st.secrets["SUPABASE_URL"]
+        key = st.secrets["SUPABASE_KEY"]
+        return create_client(url, key)
+    except:
+        return None
+
+supabase = init_db()
+
+def save_scan_result(code_preview, threat_found, remediation):
+    if supabase:
+        try:
+            supabase.table("scan_history").insert({
+                "code_snippet": code_preview[:100],
+                "vulnerable": threat_found,
+                "fix_suggested": remediation
+            }).execute()
+        except Exception as e:
+            st.sidebar.error(f"DB Error: {e}")
