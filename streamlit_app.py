@@ -68,7 +68,7 @@ class EnterpriseLogicEngine:
                     findings.append({'category': category, **rule})
         return findings, time.perf_counter() - start
 
-st.title('🛡️ CyberEnterprise Pro v10.1')
+st.title('🛡️ CyberEnterprise Pro v10.2')
 
 if 'engine' not in st.session_state:
     st.session_state.engine = EnterpriseLogicEngine()
@@ -93,8 +93,8 @@ with tab2:
     st.subheader('Real-Time Performance Monitoring')
     if 'last_latency' in st.session_state:
         m1, m2 = st.columns(2)
-        m1.metric('Scan Latency', f"{st.session_state.last_latency:.6f}s")
-        m2.metric('Throughput (Ops/sec)', f"{1/(st.session_state.last_latency + 1e-9):,.0f}")
+        m1.metric('Scan Latency', f\"{st.session_state.last_latency:.6f}s\")
+        m2.metric('Throughput (Ops/sec)', f\"{1/(st.session_state.last_latency + 1e-9):,.0f}\")
         st.write('Latency Trend Analysis')
         chart_data = pd.DataFrame(np.random.randn(20, 1) * 0.0001 + st.session_state.last_latency, columns=['latency'])
         st.line_chart(chart_data)
@@ -105,9 +105,9 @@ with tab3:
     st.subheader('⌒ Detailed Remediation Dashboard')
     if 'last_results' in st.session_state and st.session_state.last_results:
         for res in st.session_state.last_results:
-            with st.expander(f"REMEDIATION: {res['name']} ({res['severity']})"):
-                st.markdown(f"### **Technical Explanation**\\n{res['explanation']}")
-                st.success(f"### **Safe Implementation Guide**\\n{res['fix']}")
-                st.caption(f"Vector Category: {res['category']}")
+            with st.expander(f\"REMEDIATION: {res['name']} ({res['severity']})\"):
+                st.markdown(f\"### **Technical Explanation**\\n{res['explanation']}\")
+                st.success(f\"### **Safe Implementation Guide**\\n{res['fix']}\")
+                st.caption(f\"Vector Category: {res['category']}\")
     else:
         st.info('Run a scan in the Scanner tab to populate remediation details.')
