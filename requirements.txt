@@ -1,4 +1,9 @@
-flask
-gunicorn
-werkzeug
+streamlit
+google-generativeai
 supabase
+pandas
+numpy
+requests
+flask
+werkzeug
+gunicorn
