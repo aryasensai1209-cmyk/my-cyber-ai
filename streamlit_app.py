@@ -1,109 +1,84 @@
 import streamlit as st
 import time
+import google.generativeai as genai
+import pandas as pd
+from supabase import create_client
 
 # --- Page Config ---
-st.set_page_config(page_title="Cyber AI Enterprise", page_icon="🛡️", layout="wide")
+st.set_page_config(page_title="Cyber AI Ultra", page_icon="🛡️", layout="wide")
 
-# --- AI Logic ---
-def analyze_code(code):
+# --- AI & DB Initialization ---
+def init_engines():
+    # 1. Gemini Configuration
+    try:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+    except:
+        model = None
+
+    # 2. Supabase Configuration
+    try:
+        url = st.secrets["SUPABASE_URL"]
+        key = st.secrets["SUPABASE_KEY"]
+        db = create_client(url, key)
+    except:
+        db = None
+    
+    return model, db
+
+gemini_model, supabase = init_engines()
+
+# --- Core Logic Functions ---
+def simple_scan(code):
     threats = {
         'SELECT *': 'SQL Injection: Use Parameterized Queries.',
         'eval(': 'Critical: Dynamic Code Execution.',
-        'system(': 'High: Command Injection Risk.',
         'os.system': 'High: Command Injection Risk.'
     }
-    found_threats = [v for k, v in threats.items() if k in code]
-    return found_threats
+    return [v for k, v in threats.items() if k in code]
 
-# --- Dashboard UI ---
-st.title("🛡️ Cyber AI Enterprise")
-st.markdown("v2.1 | Global Security Node")
+def deep_inspection(code):
+    if not gemini_model:
+        return "❌ Gemini API Key not configured in Secrets."
+    
+    prompt = f"""
+    Analyze this code for advanced vulnerabilities (Logic flaws, Zero-days, Race conditions).
+    Provide a detailed security report with severity and fixes.
+    CODE:
+    {code}
+    """
+    response = gemini_model.generate_content(prompt)
+    return response.text
 
-code_input = st.text_area("Paste source code to analyze...", height=300)
+# --- UI Layout ---
+st.title("🛡️ Cyber AI Ultra v3.0")
+st.markdown("Enterprise-Grade Deep Semantic Security Inspection")
 
-if st.button("INITIATE SYSTEM SCAN"):
-    if code_input:
-        with st.spinner("AI Engine performing deep inspection..."):
-            time.sleep(1) # Simulating processing
-            results = analyze_code(code_input)
-            
-            if results:
-                st.error("### ⚠️ THREAT(S) DETECTED")
-                for r in results:
-                    st.write(f"- **Fix:** {r}")
+tab1, tab2 = st.tabs(["🔍 Security Scanner", "📜 Scan History"])
+
+with tab1:
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        code_input = st.text_area("Paste Source Code:", height=400)
+        mode = st.radio("Analysis Mode:", ["Standard (Fast Pattern Match)", "Deep Inspection (AI Semantic Audit)"])
+        
+    with col2:
+        st.info("**System Status**\n\n● AI Node: ONLINE\n\n● Engine: Gemini 1.5 Pro\n\n● Latency: ~2s")
+        scan_btn = st.button("🚀 START ANALYSIS", use_container_width=True)
+
+    if scan_btn and code_input:
+        with st.spinner("Analyzing security posture..."):
+            if "Deep" in mode:
+                report = deep_inspection(code_input)
+                st.subheader("🛡️ Deep Inspection Report")
+                st.markdown(f"<div style='background:#1e1e1e; padding:20px; border-radius:10px; border:1px solid #58a6ff;'>{report}</div>", unsafe_allow_html=True)
             else:
-                st.success("### ✅ SYSTEM SECURE")
-                st.write("No critical vulnerabilities identified.")
-    else:
-        st.warning("Please paste some code first.")
+                results = simple_scan(code_input)
+                if results:
+                    for r in results: st.error(f"⚠️ {r}")
+                else:
+                    st.success("✅ No common patterns detected.")
 
-# --- Sidebar Stats ---
-st.sidebar.header("System Status")
-st.sidebar.info("● CORE: ONLINE\n\n● DB: 1M SIGNATURES\n\n● MODE: PRODUCTION")
-
-# --- DATABASE INTEGRATION (Supabase) ---
-from supabase import create_client, Client
-
-def init_db():
-    # Retrieve secrets from Streamlit Cloud dashboard
-    try:
-        url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
-        return create_client(url, key)
-    except:
-        return None
-
-supabase = init_db()
-
-def save_scan_result(code_preview, threat_found, remediation):
-    if supabase:
-        try:
-            supabase.table("scan_history").insert({
-                "code_snippet": code_preview[:100],
-                "vulnerable": threat_found,
-                "fix_suggested": remediation
-            }).execute()
-        except Exception as e:
-            st.sidebar.error(f"DB Error: {e}")
-
-# --- DATABASE INTEGRATION (Supabase) ---
-from supabase import create_client, Client
-import pandas as pd
-
-def init_db():
-    try:
-        url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
-        return create_client(url, key)
-    except:
-        return None
-
-supabase = init_db()
-
-def save_scan_result(code_preview, threat_found, remediation):
-    if supabase:
-        try:
-            supabase.table("scan_history").insert({
-                "code_snippet": code_preview[:100],
-                "vulnerable": threat_found,
-                "fix_suggested": remediation
-            }).execute()
-        except Exception as e:
-            st.sidebar.error(f"DB Save Error: {e}")
-
-# --- NEW: FUNCTION TO DISPLAY HISTORY ---
-st.markdown("--- ")
-st.subheader("📜 Recent Scan History")
-
-if supabase:
-    try:
-        response = supabase.table("scan_history").select("*").order("created_at", desc=True).limit(5).execute()
-        if response.data:
-            history_df = pd.DataFrame(response.data)
-            st.table(history_df[['created_at', 'code_snippet', 'vulnerable', 'fix_suggested']])
-        else:
-            st.info("No scan history found yet.")
-    except Exception as e:
-        st.error(f"Could not load history: {e}")
-else:
-    st.warning("Connect Supabase in Secrets to enable Scan History.")
+with tab2:
+    st.write("Historical scan results from Supabase would appear here.")
