@@ -1,84 +1,50 @@
 import streamlit as st
-import time
 import google.generativeai as genai
-import pandas as pd
-from supabase import create_client
+import time
 
-# --- Page Config ---
-st.set_page_config(page_title="Cyber AI Ultra", page_icon="🛡️", layout="wide")
+st.set_page_config(page_title="Cyber AI Ultra Pro", page_icon="🦾", layout="wide")
 
-# --- AI & DB Initialization ---
-def init_engines():
-    # 1. Gemini Configuration
+# --- Initialization ---
+def init_gemini():
     try:
-        api_key = st.secrets["GOOGLE_API_KEY"]
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+        return genai.GenerativeModel('gemini-1.5-flash')
     except:
-        model = None
+        return None
 
-    # 2. Supabase Configuration
-    try:
-        url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
-        db = create_client(url, key)
-    except:
-        db = None
-    
-    return model, db
+model = init_gemini()
 
-gemini_model, supabase = init_engines()
-
-# --- Core Logic Functions ---
-def simple_scan(code):
-    threats = {
-        'SELECT *': 'SQL Injection: Use Parameterized Queries.',
-        'eval(': 'Critical: Dynamic Code Execution.',
-        'os.system': 'High: Command Injection Risk.'
-    }
-    return [v for k, v in threats.items() if k in code]
-
-def deep_inspection(code):
-    if not gemini_model:
-        return "❌ Gemini API Key not configured in Secrets."
+# --- Advanced Remediation Logic ---
+def deep_remediation_audit(code):
+    if not model:
+        return "Error: Google API Key missing in Streamlit Secrets."
     
     prompt = f"""
-    Analyze this code for advanced vulnerabilities (Logic flaws, Zero-days, Race conditions).
-    Provide a detailed security report with severity and fixes.
-    CODE:
+    Act as an elite Cyber Security Architect.
+    Analyze this code for advanced logic flaws and zero-day vulnerabilities:
     {code}
+    
+    Output your response in this EXACT format:
+    ### 🚩 VULNERABILITY FOUND
+    [Explain the logic flaw here]
+    
+    ### 🛡️ SECURE ARCHITECTURE PATCH
+    [Provide the complete, fixed code block here]
     """
-    response = gemini_model.generate_content(prompt)
+    response = model.generate_content(prompt)
     return response.text
 
-# --- UI Layout ---
-st.title("🛡️ Cyber AI Ultra v3.0")
-st.markdown("Enterprise-Grade Deep Semantic Security Inspection")
+st.title("🦾 Cyber AI: Ultra Remediation Suite")
+st.markdown("v4.0 | Advanced Semantic Logic & Automated Patching")
 
-tab1, tab2 = st.tabs(["🔍 Security Scanner", "📜 Scan History"])
+code_input = st.text_area("Paste Source Code for Deep AI Audit:", height=300)
 
-with tab1:
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        code_input = st.text_area("Paste Source Code:", height=400)
-        mode = st.radio("Analysis Mode:", ["Standard (Fast Pattern Match)", "Deep Inspection (AI Semantic Audit)"])
-        
-    with col2:
-        st.info("**System Status**\n\n● AI Node: ONLINE\n\n● Engine: Gemini 1.5 Pro\n\n● Latency: ~2s")
-        scan_btn = st.button("🚀 START ANALYSIS", use_container_width=True)
+if st.button("🚀 GENERATE SECURE PATCH"):
+    if code_input:
+        with st.spinner("🧬 AI is reconstructing secure logic..."):
+            report = deep_remediation_audit(code_input)
+            st.markdown(f\"<div style='background:#0d1117; padding:25px; border-radius:12px; border:1px solid #3fb950; color:#c9d1d9;'>{report}</div>\", unsafe_allow_html=True)
+    else:
+        st.warning("Input code required.")
 
-    if scan_btn and code_input:
-        with st.spinner("Analyzing security posture..."):
-            if "Deep" in mode:
-                report = deep_inspection(code_input)
-                st.subheader("🛡️ Deep Inspection Report")
-                st.markdown(f"<div style='background:#1e1e1e; padding:20px; border-radius:10px; border:1px solid #58a6ff;'>{report}</div>", unsafe_allow_html=True)
-            else:
-                results = simple_scan(code_input)
-                if results:
-                    for r in results: st.error(f"⚠️ {r}")
-                else:
-                    st.success("✅ No common patterns detected.")
-
-with tab2:
-    st.write("Historical scan results from Supabase would appear here.")
+st.sidebar.info("● ENGINE: GEMINI 1.5 PRO\n● MODE: ULTRA REMEDIATION\n● STATUS: ACTIVE")
