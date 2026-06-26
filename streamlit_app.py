@@ -8,7 +8,7 @@ st.set_page_config(page_title="Cyber AI Ultra Pro", page_icon="🦾", layout="wi
 def init_gemini():
     try:
         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-        return genai.GenerativeModel('gemini-1.5-flash')
+        return genai.GenerativeModel('gemini-1.5-flash-latest-latest')
     except:
         return None
 
