@@ -1,8 +1,3 @@
 streamlit
-supabase
 pandas
 numpy
-requests
-flask
-werkzeug
-gunicorn
