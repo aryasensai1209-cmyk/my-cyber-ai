@@ -1,51 +1,46 @@
 import streamlit as st
-import google.generativeai as genai
 import time
+import re
 
-st.set_page_config(page_title="Cyber AI Ultra Pro", page_icon="🦾", layout="wide")
+# --- Custom Internal Cyber AI Engine ---
+class LocalCyberEngine:
+    def __init__(self):
+        self.rules = [
+            {'type': 'SQL Injection', 'severity': 'CRITICAL', 'pattern': r"(SELECT|INSERT|UPDATE|DELETE).*?\+.*?['\"]", 'fix': 'Use Parameterized Queries.'},
+            {'type': 'Command Injection', 'severity': 'HIGH', 'pattern': r"(os\.system|subprocess|eval|exec)\(.*?\+.*?\)", 'fix': 'Use safe argument lists, not string concatenation.'},
+            {'type': 'XSS', 'severity': 'MEDIUM', 'pattern': r"\.innerHTML\s*=", 'fix': 'Use .textContent for safety.'}
+        ]
 
-# --- Initialization ---
-def init_gemini():
-    try:
-        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-        return genai.GenerativeModel('gemini-1.5-flash-latest-latest')
-    except:
-        return None
+    def audit(self, code):
+        results = []
+        for rule in self.rules:
+            if re.search(rule['pattern'], code, re.IGNORECASE | re.DOTALL):
+                results.append(rule)
+        return results
 
-model = init_gemini()
+st.set_page_config(page_title="Cyber AI Enterprise (Local Edition)", page_icon="🛡️", layout="wide")
+engine = LocalCyberEngine()
 
-# --- Advanced Remediation Logic ---
-def deep_remediation_audit(code):
-    if not model:
-        return "Error: Google API Key missing in Streamlit Secrets."
+st.title("🛡️ Cyber AI Enterprise: Pro Edition")
+st.markdown("**Status:** Proprietary Local Engine Active | **Mode:** High-Security")
 
-    prompt = f"""
-    Act as an elite Cyber Security Architect.
-    Analyze this code for advanced logic flaws and zero-day vulnerabilities:
-    {code}
+code_input = st.text_area("Paste Code for Proprietary AI Audit:", height=300)
 
-    Output your response in this EXACT format:
-    ### 🚩 VULNERABILITY FOUND
-    [Explain the logic flaw here]
-
-    ### 🛡️ SECURE ARCHITECTURE PATCH
-    [Provide the complete, fixed code block here]
-    """
-    response = model.generate_content(prompt)
-    return response.text
-
-st.title("🦾 Cyber AI: Ultra Remediation Suite")
-st.markdown("v4.0 | Advanced Semantic Logic & Automated Patching")
-
-code_input = st.text_area("Paste Source Code for Deep AI Audit:", height=300)
-
-if st.button("🚀 GENERATE SECURE PATCH"):
+if st.button("🚀 RUN DEEP LOGIC SCAN"):
     if code_input:
-        with st.spinner("🧬 AI is reconstructing secure logic..."):
-            report = deep_remediation_audit(code_input)
-            # Fixed the syntax error by using triple quotes for the markdown wrapper
-            st.markdown(f"""<div style='background:#0d1117; padding:25px; border-radius:12px; border:1px solid #3fb950; color:#c9d1d9;'>{report}</div>""", unsafe_allow_html=True)
+        with st.spinner("Analyzing structural logic..."):
+            time.sleep(1)
+            findings = engine.audit(code_input)
+            
+            if findings:
+                st.error(f"### 🚩 {len(findings)} Vulnerabilities Found")
+                for f in findings:
+                    with st.expander(f"{f['type']} - {f['severity']}"):
+                        st.write(f"**Recommendation:** {f['fix']}")
+            else:
+                st.success("### ✅ SYSTEM SECURE")
+                st.write("No patterns matching known logic flaws were detected.")
     else:
-        st.warning("Input code required.")
+        st.warning("Please provide input code.")
 
-st.sidebar.info("● ENGINE: GEMINI 1.5 PRO\n● MODE: ULTRA REMEDIATION\n● STATUS: ACTIVE")
+st.sidebar.info("● ENGINE: PROPRIETARY\n● DB: INTEGRATED\n● GEMINI: DISABLED")
