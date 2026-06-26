@@ -18,16 +18,16 @@ model = init_gemini()
 def deep_remediation_audit(code):
     if not model:
         return "Error: Google API Key missing in Streamlit Secrets."
-    
+
     prompt = f"""
     Act as an elite Cyber Security Architect.
     Analyze this code for advanced logic flaws and zero-day vulnerabilities:
     {code}
-    
+
     Output your response in this EXACT format:
     ### 🚩 VULNERABILITY FOUND
     [Explain the logic flaw here]
-    
+
     ### 🛡️ SECURE ARCHITECTURE PATCH
     [Provide the complete, fixed code block here]
     """
@@ -43,7 +43,8 @@ if st.button("🚀 GENERATE SECURE PATCH"):
     if code_input:
         with st.spinner("🧬 AI is reconstructing secure logic..."):
             report = deep_remediation_audit(code_input)
-            st.markdown(f\"<div style='background:#0d1117; padding:25px; border-radius:12px; border:1px solid #3fb950; color:#c9d1d9;'>{report}</div>\", unsafe_allow_html=True)
+            # Fixed the syntax error by using triple quotes for the markdown wrapper
+            st.markdown(f"""<div style='background:#0d1117; padding:25px; border-radius:12px; border:1px solid #3fb950; color:#c9d1d9;'>{report}</div>""", unsafe_allow_html=True)
     else:
         st.warning("Input code required.")
 
