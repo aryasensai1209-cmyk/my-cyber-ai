@@ -11,8 +11,8 @@ class EnterpriseLogicEngine:
     def __init__(self):
         self.vulnerability_map = {
             '1. Injection & Input': [
-                {'name': 'Advanced SQLi', 'pattern': r'(SELECT|INSERT|UPDATE|DELETE|UNION|DROP|EXEC|CAST|CONVERT).*?([\\s\\+\\$\\%{]).*?[\\x27\\x22]', 'explanation': 'Identifies complex SQL injection vectors where user input is concatenated into query strings.', 'fix': 'Enforce strictly parameterized queries.', 'severity': 'CRITICAL'},
-                {'name': 'Shell Command Injection', 'pattern': r'(os\\.system|subprocess|exec|eval|system|popen|shutil|spawn)\\(.*?([\\+\\%]|f[\"\\\']).*?\\)', 'explanation': 'Detects shell-level execution vulnerabilities.', 'fix': 'Avoid shell=True; use list-based arguments.', 'severity': 'CRITICAL'}
+                {'name': 'Advanced SQLi', 'pattern': r'(SELECT|INSERT|UPDATE|DELETE|UNION|DROP|EXEC|CAST|CONVERT).*?([\s\+\$\%{]).*?[\x27\x22]', 'explanation': 'Identifies complex SQL injection vectors where user input is concatenated into query strings.', 'fix': 'Enforce strictly parameterized queries.', 'severity': 'CRITICAL'},
+                {'name': 'Shell Command Injection', 'pattern': r'(os\\.system|subprocess|exec|eval|system|popen|shutil|spawn)\\(.*?([\\+\\%]|f[\"\\\\]).+?\\)', 'explanation': 'Detects shell-level execution vulnerabilities.', 'fix': 'Avoid shell=True; use list-based arguments.', 'severity': 'CRITICAL'}
             ],
             '2. Web App Logic': [
                 {'name': 'XSS (DOM/Reflected)', 'pattern': r'(\\.(innerHTML|outerHTML|srcdoc)\\s*=|document\\.write\\(|alert\\(|eval\\(.*?location)', 'explanation': 'Identifies untrusted data rendered as HTML.', 'fix': 'Utilize .textContent.', 'severity': 'HIGH'}
@@ -33,7 +33,7 @@ class EnterpriseLogicEngine:
                 {'name': 'Buffer/Heap Operations', 'pattern': r'(strcpy|strcat|sprintf|gets|memcpy|malloc)\\(', 'explanation': 'Unsafe memory operations.', 'fix': 'Use bounds-checked functions.', 'severity': 'MEDIUM'}
             ],
             '8. API Security': [
-                {'name': 'JWT/Auth Misconfiguration', 'pattern': r'(jwt\\.decode\\(.*?verify=False|algorithm=[\"\\\']none[\"\\\'])', 'explanation': 'Bypassing signature verification in JWT.', 'fix': 'Enforce signature verification.', 'severity': 'CRITICAL'}
+                {'name': 'JWT/Auth Misconfiguration', 'pattern': r'(jwt\\.decode\\(.*?verify=False|algorithm=[\"\\\\]none[\"\\\\])', 'explanation': 'Bypassing signature verification in JWT.', 'fix': 'Enforce signature verification.', 'severity': 'CRITICAL'}
             ],
             '9. Supply Chain': [
                 {'name': 'Insecure Dependency Fetch', 'pattern': r'(curl.*?\\|.*?bash|pip install.*?--extra-index-url)', 'explanation': 'Downloading unverified packages.', 'fix': 'Use pinned versions with hashes.', 'severity': 'HIGH'}
@@ -97,14 +97,14 @@ with tab3:
     st.subheader('Hyper-Detailed Remediation Dashboard')
     if 'results' in st.session_state and st.session_state.results:
         for res in st.session_state.results:
-            with st.expander(f\"[{res['severity']}] {res['name']} - Vector: {res['category']}\"):
-                st.markdown(f\"### **Precision Analysis**\\n{res['explanation']}\")
-                st.success(f\"### **Automated Patch Guide**\\n{res['fix']}\")
+            with st.expander(f"[{res['severity']}] {res['name']} - Vector: {res['category']}"):
+                st.markdown(f"### **Precision Analysis**\n{res['explanation']}")
+                st.success(f"### **Automated Patch Guide**\n{res['fix']}")
 
 with tab4:
     st.subheader('🧪 Signature Debugger')
     st.info('Test code fragments against the core SQLi regex signature.')
-    test_line = st.text_input('1. Paste specific code line:', placeholder='e.g., query = \"SELECT * FROM users WHERE id=\" + user_id')
+    test_line = st.text_input('1. Paste specific code line:', placeholder='e.g., query = "SELECT * FROM users WHERE id=" + user_id')
     test_regex = st.text_input('2. Regex Signature Match:', value=r'(SELECT|INSERT|UPDATE|DELETE|UNION|DROP|EXEC|CAST|CONVERT).*?([\\s\\+\\$\\%{]).*?[\\x27\\x22]')
     if st.button('VALIDATE SIGNATURE'):
         if test_line and test_regex:
