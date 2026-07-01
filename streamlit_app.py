@@ -5,10 +5,8 @@ import pandas as pd
 import numpy as np
 import json
 
-# --- Page Config ---
 st.set_page_config(page_title='Cyber AI Extreme v17.0: GOD MODE', page_icon='🦾', layout='wide')
 
-# --- Extreme 15-Vector Security Engine ---
 class GodLevelSecurityEngine:
     def __init__(self):
         self.vulnerability_map = {
@@ -41,7 +39,7 @@ class GodLevelSecurityEngine:
                 {'name': 'JWT Misconfig', 'pattern': r'(jwt\.decode\(.*?verify=False|algorithm=["\x27]none["\x27])', 'explanation': 'Bypassing signature verification.', 'fix': 'Enforce signature verification.', 'severity': 'CRITICAL'}
             ],
             '10. Supply Chain': [
-                {'name': 'Insecure Dependency', 'pattern': r'(curl.*?\|.*?bash|pip install.*?--extra-index-url)', 'explanation': 'Downloading unverified packages.', 'fix': 'Use pinned versions with hashes.', 'severity': 'HIGH'}
+                {'name': 'Insecure Dependency', 'pattern': r'(curl.*?|.*?bash|pip install.*?--extra-index-url)', 'explanation': 'Downloading unverified packages.', 'fix': 'Use pinned versions with hashes.', 'severity': 'HIGH'}
             ],
             '11. PII Compliance': [
                 {'name': 'PII Data Exposure', 'pattern': r'(email|ssn|phone|credit_card|social_security)\s*[:=]', 'explanation': 'Unmasked handling of PII.', 'fix': 'Implement encryption at rest.', 'severity': 'MEDIUM'}
@@ -76,6 +74,7 @@ class GodLevelSecurityEngine:
 # --- App Logic ---
 if 'engine' not in st.session_state: st.session_state.engine = GodLevelSecurityEngine()
 if 'history' not in st.session_state: st.session_state.history = []
+if 'debug_log' not in st.session_state: st.session_state.debug_log = []
 
 st.title('🦾 Cyber AI Extreme: EXTREME v17.0')
 st.markdown('**God-Mode Active | 15-Vector Deep Inspection Engine**')
@@ -125,5 +124,16 @@ with tab5:
     t_reg = st.text_input('Regex', value=r'SELECT')
     if st.button('VALIDATE'):
         m = re.search(t_reg, t_frag, re.I | re.S)
-        if m: st.error(f'MATCH: {m.group(0)}')
-        else: st.success('NO MATCH')
+        if m: 
+            st.error(f'MATCH: {m.group(0)}')
+        else: 
+            st.success('NO MATCH')
+            st.session_state.debug_log.append({"timestamp": time.strftime("%H:%M:%S"), "fragment": t_frag, "regex": t_reg})
+    
+    if st.session_state.debug_log:
+        st.markdown("--- ")
+        st.subheader("❌ Failed Match Log")
+        st.table(pd.DataFrame(st.session_state.debug_log).tail(10))
+        if st.button("Clear Log"): 
+            st.session_state.debug_log = []
+            st.rerun()
