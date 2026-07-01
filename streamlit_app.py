@@ -6,14 +6,15 @@ import numpy as np
 import json
 import os
 
-st.set_page_config(page_title='Cyber AI v18 Pro', page_icon='🛡️', layout='wide')
+st.set_page_config(page_title='Cyber AI v18.1 Pro', page_icon='🛡️', layout='wide')
 
+# --- Full Enterprise Engine v18.1 ---
 class CyberEngineV18:
     def __init__(self):
         self.vulnerability_map = {
-            '1. Injection': [
-                {'name': 'Advanced SQLi', 'pattern': r'(SELECT|INSERT|UPDATE|DELETE|UNION|DROP|EXEC|CAST|CONVERT).*?([\\s\\+\\\\%{]).*?[\\x27\\x22]', 'explanation': 'Dynamic query building detected.', 'fix': 'Enforce strictly parameterized queries.', 'severity': 'CRITICAL'},
-                {'name': 'NoSQL Injection', 'pattern': r'(\\\\$where|\\\\$ne|\\\\$gt|\\\\$regex|\\\\$exists)', 'explanation': 'Untrusted data modifying NoSQL logic.', 'fix': 'Sanitize keys using schema validation.', 'severity': 'HIGH'}
+            '1. Injection & Input': [
+                {'name': 'Advanced SQLi', 'pattern': r'(SELECT|INSERT|UPDATE|DELETE|UNION|DROP|EXEC|CAST|CONVERT).*?([\\s\\+\\\\$\\%{]).*?[\\x27\\x22]', 'explanation': 'Complex SQL injection vectors via string concatenation.', 'fix': 'Enforce strictly parameterized queries.', 'severity': 'CRITICAL'},
+                {'name': 'NoSQL Injection', 'pattern': r'(\\$where|\\$ne|\\$gt|\\$regex|\\$exists)', 'explanation': 'Untrusted data modifying NoSQL logical operators.', 'fix': 'Sanitize keys using schema validation.', 'severity': 'HIGH'}
             ],
             '2. Command & Shell': [
                 {'name': 'OS Command Injection', 'pattern': r'(os\\.system|subprocess|exec|system|popen|shutil|spawn)\\(.*?([+\\\\%]|f[\\"\\x27\\\\\\\\]).+?\\\)', 'explanation': 'Execution of system commands with variable inputs.', 'fix': 'Pass arguments as a list with shell=False.', 'severity': 'CRITICAL'}
@@ -24,7 +25,7 @@ class CyberEngineV18:
             '4. Authentication': [
                 {'name': 'Hardcoded Credentials', 'pattern': r'(password|passwd|secret|token|apikey|aws_key|private_key)\\s*[:=]\\s*[\\x27\\x22][a-zA-Z0-9_\\-]{5,}[\\x27\\x22]', 'explanation': 'Sensitive secrets found in source code.', 'fix': 'Use secret managers or environment variables.', 'severity': 'CRITICAL'}
             ],
-            '5. AI Safety': [
+            '5. AI & Data Safety': [
                 {'name': 'Insecure Deserialization', 'pattern': r'(pickle\\.load\\(|joblib\\.load\\(|yaml\\.load\\(.*?Loader=)', 'explanation': 'Loading untrusted data into objects.', 'fix': 'Use safe loaders like json.loads().', 'severity': 'HIGH'}
             ],
             '6. Cloud Infrastructure': [
@@ -49,13 +50,13 @@ class CyberEngineV18:
                 {'name': 'Race Conditions', 'pattern': r'(threading\\.Thread|asyncio\\.create_task).*?(\\\\+=|\\\\-=)', 'explanation': 'Concurrent updates without atomicity.', 'fix': 'Implement Mutex/Locks.', 'severity': 'MEDIUM'}
             ],
             '13. Path Handling': [
-                {'name': 'Path Traversal', 'pattern': r'(\\\\.\\\\./|\\\\.\\\\\\\\.|/etc/passwd|/proc/|/windows/win\\\\.ini)', 'explanation': 'Accessing files outside application root.', 'fix': 'Use os.path.basename().', 'severity': 'HIGH'}
+                {'name': 'Path Traversal', 'pattern': r'(\\\\.\\\\./|\\\\.\\\\\\\\\.|/etc/passwd|/proc/|/windows/win\\\\.ini)', 'explanation': 'Accessing files outside application root.', 'fix': 'Use os.path.basename().', 'severity': 'HIGH'}
             ],
             '14. Container Security': [
                 {'name': 'Privileged Flag', 'pattern': r'(privileged:\\s*true|hostNetwork:\\s*true)', 'explanation': 'Container exposing host kernel.', 'fix': 'Run as non-root user.', 'severity': 'HIGH'}
             ],
-            '15. Blockchain': [
-                {'name': 'Reentrancy Logic', 'pattern': r'(msg\\.sender\\.call|transfer\\(|lock_state).*?(\\\\-=|\\\\+=)', 'explanation': 'External calls before state updates.', 'fix': 'Follow Checks-Effects-Interactions pattern.', 'severity': 'CRITICAL'}
+            '15. Blockchain Logic': [
+                {'name': 'Reentrancy Attack', 'pattern': r'(msg\\.sender\\.call|transfer\\(|lock_state).*?(\\\\-=|\\\\+=)', 'explanation': 'External calls before state updates.', 'fix': 'Follow Checks-Effects-Interactions pattern.', 'severity': 'CRITICAL'}
             ]
         }
 
@@ -79,64 +80,60 @@ class CyberEngineV18:
 if 'engine' not in st.session_state: st.session_state.engine = CyberEngineV18()
 if 'history' not in st.session_state: st.session_state.history = []
 
-st.title('🛡️ Cyber AI v18: Unified Production Build')
+st.title('🛡️ Cyber AI v18.1 Pro: Global Security Node')
 
-t1, t2, t3, t4, t5 = st.tabs(['🔍 Scanner', '📊 Analysis', '📋 Remediation', '🧠 Learning', '🧪 Debugger'])
+t1, t2, t3, t4, t5 = st.tabs(['🔍 Deep Scanner', '📊 Analytics Dashboard', '📋 Remediation Core', '🧠 AI Learning', '🧪 Kernel Debugger'])
 
 with t1:
-    code_in = st.text_area('Input Source Code:', height=350)
-    if st.button('INITIATE SECURITY AUDIT'):
+    code_in = st.text_area('Input Code Logic:', height=350, placeholder="Paste source code here for multi-vector audit...")
+    if st.button('INITIATE DEEP SYSTEM AUDIT'):
         if code_in:
             results, latency, risk = st.session_state.engine.scan(code_in)
             st.session_state.results = results
             st.session_state.risk = risk
             st.session_state.latency = latency
-            st.session_state.history.append({'time': time.strftime('%H:%M:%S'), 'latency': latency, 'risk': risk})
+            st.session_state.history.append(latency)
             if results: st.error(f'Unique Threats Identified: {len(results)} | Risk Level: {risk}/100')
             else: st.success('System Secure Across All 15 Vectors.')
 
 with t2:
-    st.subheader('Security Analytics Dashboard')
+    st.subheader('Enterprise Security Analytics')
     if 'results' in st.session_state:
         c1, c2 = st.columns(2)
-        df_hist = pd.DataFrame(st.session_state.history)
-        c1.metric('Current Risk Rating', f"{st.session_state.risk}/100")
-        c2.metric('Engine Latency', f"{st.session_state.latency:.6f}s")
-        
-        st.markdown('### Threat Severity Distribution')
-        severity_data = pd.DataFrame(st.session_state.results)['severity'].value_counts()
-        st.bar_chart(severity_data)
-        
-        st.markdown('### Engine Performance Trend')
-        st.line_chart(df_hist.set_index('time')['latency'])
-    else: st.info('Perform a scan to populate analytics.')
+        c1.metric('Risk Rating', f"{st.session_state.risk}/100")
+        c2.metric('Peak Latency', f"{st.session_state.latency:.6f}s")
+        st.markdown('### Severity Breakdown')
+        df_res = pd.DataFrame(st.session_state.results)
+        st.bar_chart(df_res['severity'].value_counts())
+        st.markdown('### Latency Trend')
+        st.line_chart(st.session_state.history)
 
 with t3:
-    st.subheader('Unified Remediation Engine')
+    st.subheader('Architectural Remediation Dashboard')
     if 'results' in st.session_state and st.session_state.results:
         for res in st.session_state.results:
-            with st.expander(f"[{res['severity']}] {res['name']} - {res['Vector']}"):
-                st.warning(f"**Logic Violation:** `{res['Snippet']}`")
+            with st.expander(f"[{res['severity']}] {res['name']} - Vector: {res['Vector']}"):
+                st.warning(f"**Trigger Snippet:** `{res['Snippet']}`")
                 st.info(f"**Regex Signature:** `{res['pattern']}`")
-                st.write(f"**Risk Explanation:** {res['explanation']}")
-                st.success(f"**Security Patch:** {res['fix']}")
-    else: st.info('No vulnerabilities detected.')
+                st.write(f"**Logic Flaw:** {res['explanation']}")
+                st.success(f"**Secure Patch:** {res['fix']}")
 
 with t4:
-    st.subheader('AI Model Training')
+    st.subheader('AI Learning Core')
     with st.form('learn'):
-        cat, name, pat, fix = st.text_input('Category'), st.text_input('Threat Name'), st.text_input('Regex Pattern'), st.text_area('Remediation Step')
-        if st.form_submit_button('INTEGRATE SIGNATURE'):
-            new_rule = {'name': name, 'pattern': pat, 'explanation': 'Custom signature.', 'fix': fix, 'severity': 'HIGH'}
+        cat, name, pat, fix = st.text_input('Category'), st.text_input('Threat Name'), st.text_input('Regex Signature'), st.text_area('Patch Instructions')
+        if st.form_submit_button('INTEGRATE INTO KERNEL'):
+            new_rule = {'name': name, 'pattern': pat, 'explanation': 'Custom learned signature.', 'fix': fix, 'severity': 'HIGH'}
             st.session_state.engine.vulnerability_map.setdefault(cat, []).append(new_rule)
-            st.success('Kernel Updated Successfully.')
+            st.success('Kernel Heuristics Updated.')
 
 with t5:
-    st.subheader('Regex Lab')
-    t_s, t_r = st.text_input('Test Code Snippet'), st.text_input('Test Pattern', 'SELECT')
-    if st.button('VALIDATE'):
-        try:
-            m = re.search(t_r, t_s, re.I | re.S)
-            if m: st.error(f'MATCHED: {m.group(0)}')
-            else: st.success('NO MATCH')
-        except Exception as e: st.warning(f'Pattern Error: {e}')
+    st.subheader('Regex Lab Debugger')
+    t_code = st.text_area('Test Snippet')
+    t_reg = st.text_input('Test Regex', value='SELECT')
+    if st.button('VALIDATE') :
+        m = re.search(t_reg, t_code, re.I | re.S)
+        if m: st.error(f'MATCH: {m.group(0)}')
+        else: st.success('NO MATCH')
+
+st.sidebar.info("● CORE: ONLINE\n● VECTORS: 15 ACTIVE\n● MODE: PRO v18.1")
