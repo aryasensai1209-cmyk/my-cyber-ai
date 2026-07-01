@@ -100,6 +100,7 @@ with tab3:
         for res in st.session_state.results:
             with st.expander(f"[{res['severity']}] {res['name']} (Vector: {res['Vector']})"):
                 st.write(f"**Logic Match:** `{res['Snippet']}`")
+                st.write(f"**Pattern Used:** `{res['pattern']}`")
                 st.write(f"**Reason:** {res['explanation']}")
                 st.success(f"**Automated Fix:** {res['fix']}")
     else: st.info('No scan data available.')
@@ -112,7 +113,7 @@ with tab4:
         if test_line and test_regex:
             try:
                 match = re.search(test_regex, test_line, re.IGNORECASE | re.DOTALL)
-                if match: 
+                if match:
                     st.error('🚨 SIGNATURE MATCH')
                     st.code(f'Matched: {match.group(0)}')
                 else: st.success('✅ NO MATCH')
