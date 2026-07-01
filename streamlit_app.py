@@ -72,7 +72,7 @@ if 'engine' not in st.session_state:
     st.session_state.engine = GodLevelSecurityEngine()
 
 st.title('🦾 CyberEnterprise Ultra: God-Mode')
-st.markdown('**v16.0 | The Final Standard for Global Security Analysis**')
+st.markdown('**v16.0 | Global Standard for Semantic Security Analysis**')
 
 tab1, tab2, tab3, tab4 = st.tabs(['🔍 Scanner', '📊 Analytics', '📋 Remediation', '🧪 Signature Debugger'])
 
@@ -92,33 +92,24 @@ with tab2:
         m1, m2 = st.columns(2)
         m1.metric('Detection Latency', f"{st.session_state.latency:.6f}s")
         m2.metric('Risk Score', f"{len(st.session_state.results) * 10}")
-        st.line_chart(pd.DataFrame(np.random.randn(20, 1) * 0.0001 + st.session_state.latency, columns=['ms']))
 
 with tab3:
     if 'results' in st.session_state and st.session_state.results:
-        st.subheader('Precision Remediation Report')
         for res in st.session_state.results:
-            with st.expander(f"[{res['severity']}] {res['name']} (Vector: {res['Vector']})"):
-                st.write(f"**Logic Match:** `{res['Snippet']}`")
-                st.write(f"**Pattern Used:** `{res['pattern']}`")
+            with st.expander(f"[{res['severity']}] {res['name']}"):
                 st.write(f"**Reason:** {res['explanation']}")
-                st.success(f"**Automated Fix:** {res['fix']}")
-    else: st.info('No scan data available.')
+                st.success(f"**Fix:** {res['fix']}")
 
 with tab4:
     st.subheader('🧪 Signature Debugger')
-    test_line = st.text_input('Test Fragment:', placeholder='query = "SELECT * FROM..." + id')
+    test_line = st.text_input('Test Fragment:')
     test_regex = st.text_input('Regex Pattern:', value=r'(SELECT|INSERT|UPDATE|DELETE).*?([\\s\\+\\$\\%{]).*?[\\x27\\x22]')
     if st.button('VALIDATE PATTERN'):
         if test_line and test_regex:
             try:
                 match = re.search(test_regex, test_line, re.IGNORECASE | re.DOTALL)
-                if match:
-                    st.error('🚨 SIGNATURE MATCH')
-                    st.code(f'Matched: {match.group(0)}')
+                if match: st.error(f'🚨 MATCH: {match.group(0)}')
                 else: st.success('✅ NO MATCH')
-            except Exception as e: st.warning(f'Pattern Error: {e}')
+            except Exception as e: st.warning(f'Error: {e}')
 
-st.sidebar.markdown("● SYSTEM: PRODUCTION")
-st.sidebar.markdown("● VECTORS: 15 ACTIVE")
-st.sidebar.markdown("● ENGINE: GOD-MODE V16.0")
+st.sidebar.markdown("System Status: Node PRODUCTION | Engine v16.0")
